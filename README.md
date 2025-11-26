@@ -2,6 +2,9 @@
 
 This is the frontend application for Simora, a video captioning tool powered by Remotion and Gemini AI.
 
+## 🎥 Demo
+Watch the demo video here: [Simora Demo](https://drive.google.com/file/d/1AehFdPraarwIihotpun0Pl1TCtUghw5N/view?usp=sharing)
+
 ## Prerequisites
 
 - **Node.js**: Version 18.x or higher
