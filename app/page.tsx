@@ -19,6 +19,8 @@ export default function Home() {
     loadingStatus,
     stylePreset,
     setStylePreset,
+    fontSize,
+    setFontSize,
     durationInFrames,
     compositionWidth,
     compositionHeight,
@@ -84,6 +86,8 @@ export default function Home() {
           <StyleSelector
             stylePreset={stylePreset}
             setStylePreset={setStylePreset}
+            fontSize={fontSize}
+            setFontSize={setFontSize}
           />
 
           <GenerateControls

@@ -6,9 +6,10 @@ type CaptionsProps = {
     captions: Caption[];
     fps: number;
     stylePreset: 'bottom-centered' | 'top-bar' | 'karaoke';
+    fontSize: number;
 };
 
-export const Captions: React.FC<CaptionsProps> = ({ captions, fps, stylePreset }) => {
+export const Captions: React.FC<CaptionsProps> = ({ captions, fps, stylePreset, fontSize }) => {
     const frame = useCurrentFrame();
     const currentTime = frame / fps;
 
@@ -34,7 +35,7 @@ export const Captions: React.FC<CaptionsProps> = ({ captions, fps, stylePreset }
         case 'bottom-centered':
             presetStyle = {
                 bottom: '10%',
-                fontSize: '50px',
+                fontSize: `${fontSize}px`,
                 color: 'white',
                 textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
                 fontWeight: 'bold',
@@ -45,7 +46,7 @@ export const Captions: React.FC<CaptionsProps> = ({ captions, fps, stylePreset }
                 top: 0,
                 backgroundColor: 'rgba(0,0,0,0.7)',
                 color: '#fbbf24', // Amber-400
-                fontSize: '40px',
+                fontSize: `${fontSize}px`,
                 padding: '30px',
                 fontWeight: '600',
             };
@@ -53,7 +54,7 @@ export const Captions: React.FC<CaptionsProps> = ({ captions, fps, stylePreset }
         case 'karaoke':
             presetStyle = {
                 bottom: '15%',
-                fontSize: '60px',
+                fontSize: `${fontSize + 10}px`, // Karaoke usually bigger
                 color: '#a855f7', // Purple-500
                 fontWeight: '900',
                 WebkitTextStroke: '2px white',
@@ -63,7 +64,7 @@ export const Captions: React.FC<CaptionsProps> = ({ captions, fps, stylePreset }
         default:
             presetStyle = {
                 bottom: '10%',
-                fontSize: '50px',
+                fontSize: `${fontSize}px`,
                 color: 'white',
             };
     }

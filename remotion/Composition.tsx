@@ -11,9 +11,10 @@ export type MyCompositionProps = {
     videoUrl: string;
     captions: Caption[];
     stylePreset: 'bottom-centered' | 'top-bar' | 'karaoke';
+    fontSize: number;
 };
 
-export const MyComposition: React.FC<MyCompositionProps> = ({ videoUrl, captions, stylePreset }) => {
+export const MyComposition: React.FC<MyCompositionProps> = ({ videoUrl, captions, stylePreset, fontSize }) => {
     const { fps } = useVideoConfig();
 
     if (!videoUrl) {
@@ -27,7 +28,7 @@ export const MyComposition: React.FC<MyCompositionProps> = ({ videoUrl, captions
     return (
         <AbsoluteFill>
             <Video src={videoUrl} />
-            <Captions captions={captions} fps={fps} stylePreset={stylePreset} />
+            <Captions captions={captions} fps={fps} stylePreset={stylePreset} fontSize={fontSize} />
         </AbsoluteFill>
     );
 };

@@ -15,6 +15,7 @@ export const useVideoEditor = () => {
     const [durationInFrames, setDurationInFrames] = useState<number>(30 * 60); // Default to 60s
     const [compositionWidth, setCompositionWidth] = useState<number>(1080);
     const [compositionHeight, setCompositionHeight] = useState<number>(1920);
+    const [fontSize, setFontSize] = useState<number>(50);
     const [currentTime, setCurrentTime] = useState<number>(0);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -153,7 +154,8 @@ export const useVideoEditor = () => {
         videoUrl,
         captions,
         stylePreset,
-    }), [videoUrl, captions, stylePreset]);
+        fontSize,
+    }), [videoUrl, captions, stylePreset, fontSize]);
 
     return {
         videoUrl,
@@ -164,6 +166,8 @@ export const useVideoEditor = () => {
         loadingStatus,
         stylePreset,
         setStylePreset,
+        fontSize,
+        setFontSize,
         durationInFrames,
         compositionWidth,
         compositionHeight,
