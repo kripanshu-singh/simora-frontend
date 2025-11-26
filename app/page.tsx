@@ -18,6 +18,8 @@ export default function Home() {
   const [loadingStatus, setLoadingStatus] = useState<string>('');
   const [stylePreset, setStylePreset] = useState<'bottom-centered' | 'top-bar' | 'karaoke'>('bottom-centered');
   const [durationInFrames, setDurationInFrames] = useState<number>(30 * 60); // Default to 60s
+  const [compositionWidth, setCompositionWidth] = useState<number>(1080);
+  const [compositionHeight, setCompositionHeight] = useState<number>(1920);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,7 +28,16 @@ export default function Home() {
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       const duration = videoRef.current.duration;
-      console.log('Video Metadata Loaded:', duration, 'seconds');
+      const width = videoRef.current.videoWidth;
+      const height = videoRef.current.videoHeight;
+
+      console.log('Video Metadata Loaded:', duration, 'seconds', width, 'x', height);
+
+      if (width && height) {
+        setCompositionWidth(width);
+        setCompositionHeight(height);
+      }
+
       if (!isNaN(duration)) {
         const frames = Math.ceil(duration * 30);
         console.log('Setting duration to:', frames, 'frames');
@@ -219,8 +230,8 @@ export default function Home() {
                   ref={playerRef}
                   component={MyComposition}
                   durationInFrames={durationInFrames}
-                  compositionWidth={1080}
-                  compositionHeight={1920}
+                  compositionWidth={compositionWidth}
+                  compositionHeight={compositionHeight}
                   fps={30}
                   controls
                   loop={false}
