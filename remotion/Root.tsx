@@ -16,6 +16,7 @@ export const RemotionRoot: React.FC = () => {
                     videoUrl: '',
                     captions: [],
                     stylePreset: 'bottom-centered',
+                    fontSize: 50,
                 }}
             />
         </>
