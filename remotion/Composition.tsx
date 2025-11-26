@@ -1,5 +1,4 @@
-import React from 'react';
-import { AbsoluteFill, OffthreadVideo, useVideoConfig } from 'remotion';
+import { AbsoluteFill, Video, useVideoConfig } from 'remotion';
 import { Captions } from './Captions';
 
 export type Caption = {
@@ -27,7 +26,7 @@ export const MyComposition: React.FC<MyCompositionProps> = ({ videoUrl, captions
 
     return (
         <AbsoluteFill>
-            <OffthreadVideo src={videoUrl} />
+            <Video src={videoUrl} />
             <Captions captions={captions} fps={fps} stylePreset={stylePreset} />
         </AbsoluteFill>
     );
