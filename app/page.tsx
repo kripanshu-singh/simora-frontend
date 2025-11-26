@@ -44,7 +44,7 @@ export default function Home() {
     formData.append('video', file);
 
     try {
-      const response = await axios.post('http://localhost:5000/upload', formData, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setVideoUrl(response.data.url);
@@ -73,7 +73,7 @@ export default function Home() {
     }, 3000);
 
     try {
-      const response = await axios.post('http://localhost:5000/transcribe', { filename }, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/transcribe`, { filename }, {
         timeout: 300000 // 5 minutes timeout
       });
       setCaptions(response.data.captions);
