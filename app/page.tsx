@@ -121,7 +121,7 @@ export default function Home() {
   return (
     <main className="container">
       <header className="header">
-        <img src="/logo.png" alt="Simora.ai" className="app-logo" />
+        <img src="/icon.png" alt="Simora.ai" className="app-logo" />
       </header>
 
       <div className="content-grid with-sidebar">
