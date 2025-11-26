@@ -24,9 +24,14 @@ export const PreviewPlayer: React.FC<PreviewPlayerProps> = ({
     inputProps,
     handleLoadedMetadata,
 }) => {
+    const aspectRatio = compositionWidth / compositionHeight;
+
     return (
         <div className="preview-panel">
-            <div className="player-wrapper">
+            <div
+                className="player-wrapper"
+                style={{ aspectRatio: `${aspectRatio}` }}
+            >
                 {videoUrl ? (
                     <>
                         <video
