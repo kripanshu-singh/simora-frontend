@@ -1,133 +1,41 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
-import { Player } from '@remotion/player';
-import { MyComposition, Caption } from '../remotion/Composition';
+import React from 'react';
 import { CaptionList } from '../components/CaptionList';
-import axios from 'axios';
-import { Upload, Type, Download, Play, Loader2 } from 'lucide-react';
-import { PlayerRef } from '@remotion/player';
+import { FileUp, FileDown } from 'lucide-react';
 import './globals.css';
+import { useVideoEditor } from '../hooks/useVideoEditor';
+import { UploadSection } from '../components/UploadSection';
+import { StyleSelector } from '../components/StyleSelector';
+import { GenerateControls } from '../components/GenerateControls';
+import { PreviewPlayer } from '../components/PreviewPlayer';
 
 export default function Home() {
-  const [videoUrl, setVideoUrl] = useState<string>('');
-  const [filename, setFilename] = useState<string>('');
-  const [captions, setCaptions] = useState<Caption[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const [loadingStatus, setLoadingStatus] = useState<string>('');
-  const [stylePreset, setStylePreset] = useState<'bottom-centered' | 'top-bar' | 'karaoke'>('bottom-centered');
-  const [durationInFrames, setDurationInFrames] = useState<number>(30 * 60); // Default to 60s
-  const [compositionWidth, setCompositionWidth] = useState<number>(1080);
-  const [compositionHeight, setCompositionHeight] = useState<number>(1920);
-  const [currentTime, setCurrentTime] = useState<number>(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const playerRef = useRef<PlayerRef>(null);
-
-  const handleLoadedMetadata = () => {
-    if (videoRef.current) {
-      const duration = videoRef.current.duration;
-      const width = videoRef.current.videoWidth;
-      const height = videoRef.current.videoHeight;
-
-      console.log('Video Metadata Loaded:', duration, 'seconds', width, 'x', height);
-
-      if (width && height) {
-        setCompositionWidth(width);
-        setCompositionHeight(height);
-      }
-
-      if (!isNaN(duration)) {
-        const frames = Math.ceil(duration * 30);
-        console.log('Setting duration to:', frames, 'frames');
-        setDurationInFrames(frames);
-      }
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('video', file);
-
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setVideoUrl(response.data.url);
-      setFilename(response.data.filename);
-    } catch (error) {
-      console.error('Upload failed', error);
-      alert('Upload failed');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleTranscribe = async () => {
-    if (!filename) return;
-    setIsTranscribing(true);
-    setLoadingStatus('Initializing...');
-
-    // Status update simulation
-    const statusInterval = setInterval(() => {
-      setLoadingStatus(prev => {
-        if (prev === 'Initializing...') return 'Uploading to Gemini...';
-        if (prev === 'Uploading to Gemini...') return 'Analyzing Audio...';
-        if (prev === 'Analyzing Audio...') return 'Generating Captions (this may take a minute)...';
-        return prev;
-      });
-    }, 3000);
-
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/transcribe`, { filename }, {
-        timeout: 300000 // 5 minutes timeout
-      });
-      setCaptions(response.data.captions);
-    } catch (error) {
-      console.error('Transcription failed', error);
-      alert('Transcription failed or timed out. Please try a shorter video.');
-    } finally {
-      clearInterval(statusInterval);
-      setIsTranscribing(false);
-      setLoadingStatus('');
-    }
-  };
-
-  const handleUpdateCaption = (index: number, newText: string) => {
-    const newCaptions = [...captions];
-    newCaptions[index] = { ...newCaptions[index], text: newText };
-    setCaptions(newCaptions);
-  };
-
-  const handleSeek = (timeInSeconds: number) => {
-    if (playerRef.current) {
-      playerRef.current.seekTo(timeInSeconds * 30); // Seek to frame (30fps)
-    }
-  };
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      if (playerRef.current) {
-        const frame = playerRef.current.getCurrentFrame();
-        if (frame !== null) {
-          setCurrentTime(frame / 30);
-        }
-      }
-    }, 100);
-    return () => clearInterval(interval);
-    return () => clearInterval(interval);
-  }, []);
-
-  const inputProps = useMemo(() => ({
+  const {
     videoUrl,
     captions,
+    isUploading,
+    isTranscribing,
+    loadingStatus,
     stylePreset,
-  }), [videoUrl, captions, stylePreset]);
+    setStylePreset,
+    durationInFrames,
+    compositionWidth,
+    compositionHeight,
+    currentTime,
+    fileInputRef,
+    captionInputRef,
+    videoRef,
+    playerRef,
+    handleLoadedMetadata,
+    handleFileChange,
+    handleTranscribe,
+    handleUpdateCaption,
+    handleSeek,
+    handleExport,
+    handleImport,
+    inputProps
+  } = useVideoEditor();
 
   return (
     <main className="container">
@@ -143,113 +51,59 @@ export default function Home() {
             onSeek={handleSeek}
             currentTime={currentTime}
           />
+          <div className="caption-actions">
+            <h3>Manage Captions</h3>
+            <div className="action-buttons">
+              <button className="secondary-btn" onClick={() => captionInputRef.current?.click()}>
+                <FileUp size={16} /> Import
+              </button>
+              <input
+                type="file"
+                ref={captionInputRef}
+                onChange={handleImport}
+                accept=".srt,.vtt"
+                hidden
+              />
+              <button className="secondary-btn" onClick={() => handleExport('srt')} disabled={captions.length === 0}>
+                <FileDown size={16} /> Export SRT
+              </button>
+              <button className="secondary-btn" onClick={() => handleExport('vtt')} disabled={captions.length === 0}>
+                <FileDown size={16} /> Export VTT
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="controls-panel">
-          <div className="card upload-section">
-            <h2>1. Upload Video</h2>
-            <div
-              className="upload-box"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="video/mp4"
-                hidden
-              />
-              {isUploading ? (
-                <Loader2 className="animate-spin" size={48} />
-              ) : (
-                <>
-                  <Upload size={48} />
-                  <p>Click to upload .mp4</p>
-                </>
-              )}
-            </div>
-          </div>
+          <UploadSection
+            isUploading={isUploading}
+            onFileChange={handleFileChange}
+            fileInputRef={fileInputRef}
+          />
 
-          <div className="card style-section">
-            <h2>2. Choose Style</h2>
-            <div className="style-options">
-              <button
-                className={`style-btn ${stylePreset === 'bottom-centered' ? 'active' : ''}`}
-                onClick={() => setStylePreset('bottom-centered')}
-              >
-                Standard
-              </button>
-              <button
-                className={`style-btn ${stylePreset === 'top-bar' ? 'active' : ''}`}
-                onClick={() => setStylePreset('top-bar')}
-              >
-                News / Top Bar
-              </button>
-              <button
-                className={`style-btn ${stylePreset === 'karaoke' ? 'active' : ''}`}
-                onClick={() => setStylePreset('karaoke')}
-              >
-                Karaoke
-              </button>
-            </div>
-          </div>
+          <StyleSelector
+            stylePreset={stylePreset}
+            setStylePreset={setStylePreset}
+          />
 
-          <div className="card action-section">
-            <h2>3. Generate</h2>
-            <button
-              className="primary-btn"
-              onClick={handleTranscribe}
-              disabled={!videoUrl || isTranscribing}
-            >
-              {isTranscribing ? (
-                <>
-                  <Loader2 className="animate-spin" size={20} />
-                  <span className="text-sm">{loadingStatus}</span>
-                </>
-              ) : (
-                <>
-                  <Type size={20} /> Auto-Generate Captions
-                </>
-              )}
-            </button>
-          </div>
+          <GenerateControls
+            isTranscribing={isTranscribing}
+            loadingStatus={loadingStatus}
+            videoUrl={videoUrl}
+            onTranscribe={handleTranscribe}
+          />
         </div>
 
-        <div className="preview-panel">
-          <div className="player-wrapper">
-            {videoUrl ? (
-              <>
-                <video
-                  ref={videoRef}
-                  src={videoUrl}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  style={{ display: 'none' }}
-                  preload="auto"
-                />
-                <Player
-                  ref={playerRef}
-                  component={MyComposition}
-                  durationInFrames={durationInFrames}
-                  compositionWidth={compositionWidth}
-                  compositionHeight={compositionHeight}
-                  fps={30}
-                  controls
-                  loop={false}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                  }}
-                  inputProps={inputProps}
-                />
-              </>
-            ) : (
-              <div className="placeholder-player">
-                <Play size={64} />
-                <p>Preview will appear here</p>
-              </div>
-            )}
-          </div>
-        </div>
+        <PreviewPlayer
+          videoUrl={videoUrl}
+          videoRef={videoRef}
+          playerRef={playerRef}
+          durationInFrames={durationInFrames}
+          compositionWidth={compositionWidth}
+          compositionHeight={compositionHeight}
+          inputProps={inputProps}
+          handleLoadedMetadata={handleLoadedMetadata}
+        />
       </div>
     </main>
   );
