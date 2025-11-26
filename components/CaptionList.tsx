@@ -18,7 +18,7 @@ export const CaptionList: React.FC<CaptionListProps> = ({
     return (
         <div className="caption-list-container">
             <div className="caption-list-header">
-                <h3>Captions ({captions.length})</h3>
+                <h3>Transcript ({captions?.length})</h3>
                 <span className="text-sm text-gray-400">Click to seek • Edit to update</span>
             </div>
 
